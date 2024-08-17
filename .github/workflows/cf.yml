@@ -32,3 +32,5 @@ jobs:
           apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
           projectName: aimusic
           directory: ./
+          accountId: '${{ secrets.accountId }}'
+          
