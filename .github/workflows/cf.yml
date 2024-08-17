@@ -27,7 +27,7 @@ jobs:
         run: npm run build  # Adjust this command based on your build script
 
       - name: Deploy to Cloudflare Pages
-        uses: Cyb3r-Jak3/actions-cloudflare-pages@<Latest Release>
+        uses: Cyb3r-Jak3/actions-cloudflare-pages@latest
         with:
           email: '${{ secrets.CLOUDFLARE_EMAIL }}'        
           CLOUDFLARE_KEY: '${{ secrets.CLOUDFLARE_KEY }}'
