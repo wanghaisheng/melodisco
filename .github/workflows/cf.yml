@@ -27,11 +27,8 @@ jobs:
         run: npm run build  # Adjust this command based on your build script
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 7de76dbba0d8e0ad1d08d4acda8a3b03
-          projectName: aimusic
-          directory: './'
-          # Enable Wrangler v3
-          wranglerVersion: '3'
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy './' --project-name='aimusic'          
