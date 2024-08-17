@@ -27,9 +27,9 @@ jobs:
         run: npm run build  # Adjust this command based on your build script
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: Cyb3r-Jak3/actions-cloudflare-pages@<Latest Release>
         with:
-          accountId: '${{ secrets.accountId }}'        
-          apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
+          email: '${{ secrets.CLOUDFLARE_EMAIL }}'        
+          CLOUDFLARE_KEY: '${{ secrets.CLOUDFLARE_KEY }}'
           projectName: aimusic
           directory: ./          
