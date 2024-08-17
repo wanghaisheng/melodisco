@@ -31,3 +31,5 @@ jobs:
         with:
           email: '${{ secrets.CLOUDFLARE_EMAIL }}'        
           global_token: '${{ secrets.CLOUDFLARE_KEY }}'
+          account: ${{ secrets.CLOUDFLARE_ZONE }}
+          project: ${{ secrets.CLOUDFLARE_PROJECT }}
