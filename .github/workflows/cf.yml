@@ -30,8 +30,8 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: YOUR_ACCOUNT_ID
-          projectName: YOUR_PROJECT_NAME
-          directory: YOUR_BUILD_OUTPUT_DIRECTORY
+          accountId: 7de76dbba0d8e0ad1d08d4acda8a3b03
+          projectName: aimusic
+          directory: './'
           # Enable Wrangler v3
           wranglerVersion: '3'
