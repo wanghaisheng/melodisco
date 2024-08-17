@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: Build project
-        run: npm run build  # Adjust this command based on your build script
+        run: npm run build  && ls # Adjust this command based on your build script
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
