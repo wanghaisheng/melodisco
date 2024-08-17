@@ -30,6 +30,4 @@ jobs:
         uses: Cyb3r-Jak3/actions-cloudflare-pages@v2.0.0
         with:
           email: '${{ secrets.CLOUDFLARE_EMAIL }}'        
-          CLOUDFLARE_KEY: '${{ secrets.CLOUDFLARE_KEY }}'
-          projectName: aimusic
-          directory: ./          
+          global_token: '${{ secrets.CLOUDFLARE_KEY }}'
