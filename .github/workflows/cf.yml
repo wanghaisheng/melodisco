@@ -29,8 +29,7 @@ jobs:
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
+          accountId: '${{ secrets.accountId }}'        
           apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
           projectName: aimusic
-          directory: ./
-          accountId: '${{ secrets.accountId }}'
-          
+          directory: ./          
