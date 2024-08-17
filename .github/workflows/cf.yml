@@ -26,10 +26,12 @@ jobs:
       - name: Build project
         run: npm run build  # Adjust this command based on your build script
 
-      - name: Deploy to Cloudflare Pages
-        uses: Cyb3r-Jak3/actions-cloudflare-pages@v2.0.0
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         with:
-          account: '${{ secrets.CLOUDFLARE_ZONE }}'
-          project: '${{ secrets.CLOUDFLARE_PROJECT }}'
-          email: '${{ secrets.CLOUDFLARE_EMAIL }}'        
-          global_token: '${{ secrets.CLOUDFLARE_KEY }}'
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: YOUR_ACCOUNT_ID
+          projectName: YOUR_PROJECT_NAME
+          directory: YOUR_BUILD_OUTPUT_DIRECTORY
+          # Enable Wrangler v3
+          wranglerVersion: '3'
