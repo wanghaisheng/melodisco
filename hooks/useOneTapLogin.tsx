@@ -1,6 +1,6 @@
 "use client";
 
-import googleOneTap from "google-one-tap";
+import googleOneTap from "google-one-tap-cf";
 import { signIn } from "next-auth/react";
 import { useAppContext } from "@/contexts/app";
 import { useEffect } from "react";

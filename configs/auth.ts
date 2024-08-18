@@ -10,8 +10,8 @@ import { saveUser } from "@/services/user";
 
 let providers: Provider[] = [
   CredentialsProvider({
-    id: "google-one-tap",
-    name: "google-one-tap",
+    id: "google-one-tap-cf",
+    name: "google-one-tap-cf",
 
     credentials: {
       credential: { type: "text" },
