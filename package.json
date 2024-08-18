@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "pages:build": "npx @cloudflare/next-on-pages",
-    "preview": "pnpmb pages:build && wrangler pages dev",
+    "preview": "pnpm pages:build && wrangler pages dev",
     "deploy": "pnpm pages:build && wrangler pages deploy"
   },
   "dependencies": {
