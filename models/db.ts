@@ -1,4 +1,4 @@
-import { Client } from '@neondb/client';
+import { Client } from '@neondatabase/serverless';
 
 let globalClient: Client;
 
@@ -10,6 +10,7 @@ export function getDb() {
     globalClient = new Client({
       connectionString,
     });
+    
   }
 
   return globalClient;
