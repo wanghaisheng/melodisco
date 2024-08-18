@@ -7,6 +7,7 @@ import { SongTask } from "@/types/task";
 import { genSong } from "@/services/suno";
 import { getUserUuid } from "@/services/user";
 import { insertRow } from "@/models/song";
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

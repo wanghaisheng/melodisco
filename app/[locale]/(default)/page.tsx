@@ -14,6 +14,7 @@ import Scroll from "./_components/playlist/scroll";
 import { getTranslations } from "next-intl/server";
 
 export const maxDuration = 120;
+export const runtime = "edge";
 
 export async function generateMetadata({
   params,

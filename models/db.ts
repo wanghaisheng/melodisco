@@ -1,16 +1,16 @@
-import { Pool } from "pg";
+import { Client } from '@neondb/client';
 
-let globalPool: Pool;
+let globalClient: Client;
 
 export function getDb() {
-  if (!globalPool) {
+  if (!globalClient) {
     const connectionString = process.env.POSTGRES_URL;
     console.log("connectionString", connectionString);
 
-    globalPool = new Pool({
+    globalClient = new Client({
       connectionString,
     });
   }
 
-  return globalPool;
+  return globalClient;
 }

@@ -6,6 +6,7 @@ import { getLatestSongs } from "@/services/suno";
 import { getLatestSongs as getUdioLatestSongs } from "@/services/udio";
 
 export const maxDuration = 120;
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

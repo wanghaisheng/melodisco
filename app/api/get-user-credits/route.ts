@@ -2,6 +2,7 @@ import { respData, respErr } from "@/utils/resp";
 
 import { getUserCredits } from "@/services/order";
 import { getUserUuid } from "@/services/user";
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

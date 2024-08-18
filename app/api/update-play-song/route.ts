@@ -7,6 +7,7 @@ import { increasePlayCount } from "@/models/song";
 import { insertPlaySong } from "@/models/play_song";
 
 export const maxDuration = 120;
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

@@ -7,6 +7,7 @@ import Sign from "../_components/sign";
 import { Song } from "@/types/song";
 import { useAppContext } from "@/contexts/app";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export const maxDuration = 120;
 

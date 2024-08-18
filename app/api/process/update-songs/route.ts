@@ -2,6 +2,7 @@ import { getSongsFromFile, updateSongs } from "@/services/song";
 import { respData, respErr } from "@/utils/resp";
 
 export const maxDuration = 120;
+export const runtime = "edge";
 
 export async function POST() {
   try {

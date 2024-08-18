@@ -3,6 +3,7 @@ import "../style.css";
 import Markdown from "../../[locale]/(default)/_components/markdown";
 import { MdOutlineHome } from "react-icons/md";
 import { Metadata } from "next";
+export const runtime = "edge";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

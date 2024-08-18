@@ -5,6 +5,7 @@ import Playlist from "../../_components/playlist";
 import Tab from "../../_components/tab";
 import { getProviderLatestSongs } from "@/models/song";
 import { getTranslations } from "next-intl/server";
+export const runtime = "edge";
 
 export const maxDuration = 120;
 

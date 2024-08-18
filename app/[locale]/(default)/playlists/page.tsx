@@ -4,6 +4,7 @@ import Info from "../_components/generator/info";
 import { Nav } from "@/types/nav";
 import Preview from "../_components/generator/preview";
 import { getTranslations } from "next-intl/server";
+export const runtime = "edge";
 
 export default async function () {
   const t = await getTranslations("nav");

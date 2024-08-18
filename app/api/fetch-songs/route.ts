@@ -5,6 +5,7 @@ import { Song } from "@/types/song";
 import { formatSong } from "@/services/song";
 import { getSongInfo } from "@/services/suno";
 import { getUserUuid } from "@/services/user";
+export const runtime = "edge";
 
 export const maxDuration = 120;
 

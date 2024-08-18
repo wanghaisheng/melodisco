@@ -2,7 +2,31 @@ import { getLatestSongs, getTrendingSongs } from "./suno";
 import { getUuids, insertRow } from "@/models/song";
 
 import { Song } from "@/types/song";
-import fs from "fs";
+// import fs from "fs";
+
+/**
+ * Fetches file content from the provided URL.
+ * @param {string} dataUrl - The URL of the file to fetch.
+ * @returns {Promise<string>} - A promise that resolves to the file content.
+ */
+async function fetchData(dataUrl) {
+  try {
+    const response = await fetch(dataUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.statusText}`);
+    }
+    
+    const data = await response.text(); // Read the response body as text
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+}
+
+
+
 
 export const getSongsFromFile = async (): Promise<Song[]> => {
   try {
@@ -11,7 +35,10 @@ export const getSongsFromFile = async (): Promise<Song[]> => {
       return [];
     }
 
-    const data = fs.readFileSync(dataFile, "utf8");
+    const data = await fetchData(dataFile);
+
+
+
     const jsonData = JSON.parse(data);
 
     let songs: Song[] = [];

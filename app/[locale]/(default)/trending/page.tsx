@@ -7,6 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { getTrendingSongs } from "@/models/song";
 
 export const maxDuration = 120;
+export const runtime = "edge";
 
 export async function generateMetadata({
   params,

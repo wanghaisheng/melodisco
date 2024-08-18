@@ -1,6 +1,7 @@
 import { respData, respErr } from "@/utils/resp";
 
 import { getLatestSongs } from "@/models/song";
+export const runtime = "edge";
 
 export const maxDuration = 120;
 

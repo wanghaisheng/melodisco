@@ -14,6 +14,7 @@ import { Nav } from "@/types/nav";
 import { formatSong } from "@/services/song";
 import { getSongInfo } from "@/services/suno";
 import { getTranslations } from "next-intl/server";
+export const runtime = "edge";
 
 export const maxDuration = 120;
 
