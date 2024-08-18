@@ -1,17 +1,18 @@
-import { Client } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
 
-let globalClient: Client;
 
-export function getDb() {
-  if (!globalClient) {
-    const connectionString = process.env.POSTGRES_URL;
-    console.log("connectionString", connectionString);
+async function getData() {
 
-    globalClient = new Client({
-      connectionString,
-    });
-    
+
+  const connectionString = process.env.POSTGRES_URL;
+  if (!connectionString) {
+    throw new Error("POSTGRES_URL is not defined");
   }
+  const sql = neon(connectionString);
+  
+const response = await sql`SELECT version()`;
+return response[0].version;
 
-  return globalClient;
+
+
 }
