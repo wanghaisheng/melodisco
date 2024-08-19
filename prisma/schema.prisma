@@ -103,10 +103,12 @@ model favorite_songs {
 }
 
 model play_songs {
-  song_uuid        String   @id @default(uuid())
+  id               String   @id @default(uuid())
+  song_uuid        String
   user_uuid        String
   created_at       DateTime @default(now())
   song           songs    @relation(fields: [song_uuid], references: [uuid])
+  @@index([song_uuid])
 
 }
 
