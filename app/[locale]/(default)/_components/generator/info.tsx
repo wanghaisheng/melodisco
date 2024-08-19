@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAppContext } from "@/contexts/app";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function () {
   const t = useTranslations("create.form");

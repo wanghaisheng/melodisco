@@ -11,6 +11,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { MdLanguage } from "react-icons/md";
 import { localeNames } from "@/configs/locale";
+export const runtime = "edge";
 
 export default function () {
   const params = useParams();

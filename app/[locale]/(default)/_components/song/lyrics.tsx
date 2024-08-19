@@ -1,5 +1,6 @@
 import { Song } from "@/types/song";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function ({ song }: { song: Song }) {
   const t = useTranslations("song");

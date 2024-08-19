@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 export const getTimestamp = () => {
   let time = Date.parse(new Date().toUTCString());
 

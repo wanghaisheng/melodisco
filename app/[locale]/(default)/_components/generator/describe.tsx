@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAppContext } from "@/contexts/app";
 import { useRouter } from "next/navigation";
+export const runtime = "edge";
 
 export default function () {
   const styles = [

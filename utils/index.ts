@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
+export const runtime = 'edge'
 
 export function genUuid(): string {
-  return uuidv4();
+  return crypto.randomUUID();
 }
 
 export function genUniSeq(prefix: string = ""): string {

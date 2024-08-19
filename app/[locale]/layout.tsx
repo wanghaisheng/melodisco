@@ -8,6 +8,7 @@ import { NextAuthSessionProvider } from "@/providers/session";
 import { ThemeProvider } from "@/providers/theme";
 import { Toaster } from "sonner";
 import { getTranslations } from "next-intl/server";
+export const runtime = "edge";
 
 export async function generateMetadata({
   params: { locale },

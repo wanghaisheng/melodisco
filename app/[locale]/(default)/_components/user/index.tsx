@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useAppContext } from "@/contexts/app";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function () {
   const t = useTranslations("user");

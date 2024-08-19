@@ -1,4 +1,5 @@
 import { SnowflakeIdv1 } from "simple-flakeid";
+export const runtime = 'edge'
 
 export function genOrderNo(): string {
   const gen = new SnowflakeIdv1({ workerId: 1 });

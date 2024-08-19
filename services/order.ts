@@ -4,6 +4,7 @@ import { Order } from "@/types/order";
 import Stripe from "stripe";
 import { UserCredits } from "@/types/user";
 import { getUserSongTasksCount } from "@/models/task";
+export const runtime = 'edge'
 
 export async function handleOrderSession(session_id: string) {
   const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY || "");

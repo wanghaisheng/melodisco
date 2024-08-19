@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 export default function () {
   return (
     <div className="mx-auto flex items-center justify-center gap-x-4 mb-16 mt-4 text-xs font-medium">

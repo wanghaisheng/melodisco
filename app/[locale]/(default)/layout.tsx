@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 const Player = dynamic(() => import("./_components/player"), {
   ssr: false,
 });
+export const runtime = "edge";
 
 export default function ({ children }: { children: ReactNode }) {
   return (

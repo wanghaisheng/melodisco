@@ -18,6 +18,7 @@ import Sign from "../sign";
 import { signIn } from "next-auth/react";
 import { useAppContext } from "@/contexts/app";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function () {
   const t = useTranslations("user");

@@ -1,18 +1,38 @@
-import { findUserByEmail, insertUser } from "@/models/user";
-
 import { User } from "@/types/user";
-import { authOptions } from "@/configs/auth";
-import { getServerSession } from "next-auth";
+import { getDb } from "@/models/db";
+import { auth } from "@/configs/auth";
+
+export const runtime = 'edge';
 
 export async function saveUser(user: User) {
+  const prisma = getDb();
   try {
-    const existUser = await findUserByEmail(user.email);
-    if (!existUser) {
-      await insertUser(user);
+    const existingUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+
+    if (!existingUser) {
+      await prisma.user.create({
+        data: {
+          id: user.uuid, // Assuming uuid is used as the id
+          email: user.email,
+          name: user.nickname,
+          image: user.avatar_url,
+          // Add other fields as necessary
+        },
+      });
     } else {
-      user.id = existUser.id;
-      user.uuid = existUser.uuid;
-      user.created_at = existUser.created_at;
+      await prisma.user.update({
+        where: { email: user.email },
+        data: {
+          name: user.nickname,
+          image: user.avatar_url,
+          // Update other fields as necessary
+        },
+      });
+      user.id = existingUser.id;
+      user.uuid = existingUser.id; // Assuming id is used as uuid
+      user.created_at = existingUser.emailVerified?.toISOString() || user.created_at;
     }
   } catch (e) {
     console.log("save user failed: ", e);
@@ -20,24 +40,12 @@ export async function saveUser(user: User) {
 }
 
 export async function getUserUuid() {
-  let user_uuid = "";
-
-  const session = await getServerSession(authOptions);
-  if (session && session.user && session.user.uuid) {
-    user_uuid = session.user.uuid;
-  }
-
-  return user_uuid;
+  const session = await auth();
+  return session?.user?.id || "";
 }
 
 export async function getUserEmail() {
-  let user_email = "";
-
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   console.log("session", session);
-  if (session && session.user && session.user.email) {
-    user_email = session.user.email;
-  }
-
-  return user_email;
+  return session?.user?.email || "";
 }

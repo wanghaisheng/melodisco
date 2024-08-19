@@ -9,6 +9,8 @@ import { Song } from "@/types/song";
  * @param {string} dataUrl - The URL of the file to fetch.
  * @returns {Promise<string>} - A promise that resolves to the file content.
  */
+export const runtime = 'edge'
+
 async function fetchData(dataUrl) {
   try {
     const response = await fetch(dataUrl);

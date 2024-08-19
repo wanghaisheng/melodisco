@@ -1,6 +1,7 @@
 export function respData(data: any) {
   return respJson(0, "ok", data || []);
 }
+export const runtime = 'edge'
 
 export function respOk() {
   return respJson(0, "ok");

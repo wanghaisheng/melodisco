@@ -3,6 +3,7 @@
 import { AppContext } from "@/contexts/app";
 import { Inter } from "next/font/google";
 import { useContext } from "react";
+export const runtime = 'edge'
 
 const inter = Inter({ subsets: ["latin"] });
 

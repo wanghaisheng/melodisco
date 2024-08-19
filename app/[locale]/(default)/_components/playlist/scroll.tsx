@@ -7,6 +7,7 @@ import Link from "next/link";
 import Skeleton from "../skeleton";
 import { Song } from "@/types/song";
 import { useAppContext } from "@/contexts/app";
+export const runtime = "edge";
 
 export default function ({
   loading,

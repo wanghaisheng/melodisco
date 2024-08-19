@@ -16,6 +16,7 @@ import User from "../user";
 import { useAppContext } from "@/contexts/app";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function () {
   const t = useTranslations("pricing");

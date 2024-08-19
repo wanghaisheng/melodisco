@@ -4,6 +4,7 @@ import { BsMoonStars, BsSun } from "react-icons/bs";
 
 import { cacheSet } from "@/utils/cache";
 import { useAppContext } from "@/contexts/app";
+export const runtime = "edge";
 
 export default function () {
   const { theme, setTheme } = useAppContext();

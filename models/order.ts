@@ -1,28 +1,23 @@
 import { Order } from "@/types/order";
-import { QueryResultRow } from "pg";
 import { getDb } from "@/models/db";
+import { Prisma } from "@prisma/client";
 
 export async function insertOrder(order: Order) {
-  const db = getDb();
-  const res = await db.query(
-    `INSERT INTO orders 
-        (order_no, created_at, user_uuid, user_email, amount, plan, expired_at, order_status, credits, currency) 
-        VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `,
-    [
-      order.order_no,
-      order.created_at,
-      order.user_uuid as any,
-      order.user_email,
-      order.amount,
-      order.plan,
-      order.expired_at,
-      order.order_status,
-      order.credits,
-      order.currency,
-    ]
-  );
+  const prisma = getDb();
+  const res = await prisma.orders.create({
+    data: {
+      order_no: order.order_no,
+      created_at: order.created_at,
+      user_uuid: order.user_uuid,
+      user_email: order.user_email,
+      amount: order.amount,
+      plan: order.plan,
+      expired_at: order.expired_at,
+      order_status: order.order_status,
+      credits: order.credits,
+      currency: order.currency,
+    }
+  });
 
   return res;
 }
@@ -30,20 +25,12 @@ export async function insertOrder(order: Order) {
 export async function findOrderByOrderNo(
   order_no: number
 ): Promise<Order | undefined> {
-  const db = getDb();
-  const res = await db.query(
-    `SELECT * FROM orders WHERE order_no = $1 LIMIT 1`,
-    [order_no]
-  );
-  if (res.rowCount === 0) {
-    return undefined;
-  }
+  const prisma = getDb();
+  const res = await prisma.orders.findUnique({
+    where: { order_no: order_no }
+  });
 
-  const { rows } = res;
-  const row = rows[0];
-  const order = formatOrder(row);
-
-  return order;
+  return res ? formatOrder(res) : undefined;
 }
 
 export async function updateOrderStatus(
@@ -51,11 +38,14 @@ export async function updateOrderStatus(
   order_status: number,
   paied_at: string
 ) {
-  const db = getDb();
-  const res = await db.query(
-    `UPDATE orders SET order_status=$1, paied_at=$2 WHERE order_no=$3`,
-    [order_status as any, paied_at, order_no]
-  );
+  const prisma = getDb();
+  const res = await prisma.orders.update({
+    where: { order_no },
+    data: {
+      order_status,
+      paied_at
+    }
+  });
 
   return res;
 }
@@ -64,11 +54,11 @@ export async function updateOrderSession(
   order_no: string,
   stripe_session_id: string
 ) {
-  const db = getDb();
-  const res = await db.query(
-    `UPDATE orders SET stripe_session_id=$1 WHERE order_no=$2`,
-    [stripe_session_id, order_no]
-  );
+  const prisma = getDb();
+  const res = await prisma.orders.update({
+    where: { order_no },
+    data: { stripe_session_id }
+  });
 
   return res;
 }
@@ -76,40 +66,39 @@ export async function updateOrderSession(
 export async function getUserOrders(
   user_uuid: string
 ): Promise<Order[] | undefined> {
-  const now = new Date().toISOString();
-  const db = getDb();
-  const res = await db.query(
-    `SELECT * FROM orders WHERE user_uuid = $1 AND order_status = 2 AND expired_at >= $2`,
-    [user_uuid, now]
-  );
-  if (res.rowCount === 0) {
+  const now = new Date();
+  const prisma = getDb();
+  const res = await prisma.orders.findMany({
+    where: {
+      user_uuid,
+      order_status: 2,
+      expired_at: { gte: now }
+    }
+  });
+
+  if (res.length === 0) {
     return undefined;
   }
 
-  let orders: Order[] = [];
-  const { rows } = res;
-  rows.forEach((row) => {
-    const order = formatOrder(row);
-    orders.push(order);
-  });
-
-  return orders;
+  return res.map(formatOrder);
 }
 
-function formatOrder(row: QueryResultRow): Order {
+function formatOrder(row: Prisma.ordersCreateInput): Order {
   const order: Order = {
     order_no: row.order_no,
-    created_at: row.created_at,
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
     user_uuid: row.user_uuid,
     user_email: row.user_email,
-    amount: row.amount,
-    plan: row.plan,
-    expired_at: row.expired_at,
-    order_status: row.order_status,
-    paied_at: row.paied_at,
-    stripe_session_id: row.stripe_session_id,
-    credits: row.credits,
-    currency: row.currency,
+    amount: row.amount as number,
+    plan: row.plan as string,
+    expired_at: row.expired_at instanceof Date ? row.expired_at.toISOString() : row.expired_at,
+
+    order_status: row.order_status as number,
+    paied_at: row.paied_at instanceof Date ? row.paied_at.toISOString() : row.paied_at,
+
+    stripe_session_id: row.stripe_session_id as string | undefined,
+    credits: row.credits as number,
+    currency: row.currency as string,
   };
 
   return order;

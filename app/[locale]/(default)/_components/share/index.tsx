@@ -5,6 +5,7 @@ import { MdOutlineShare } from "react-icons/md";
 import { Song } from "@/types/song";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
+export const runtime = "edge";
 
 export default function ({ song }: { song: Song }) {
   const params = useParams();

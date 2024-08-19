@@ -10,12 +10,16 @@ import { SongTask } from "@/types/task";
 import { getTimestamp } from "@/utils/time";
 import useOneTapLogin from "@/hooks/useOneTapLogin";
 
+// Remove this line as it's not needed in a client component
+// export const runtime = 'edge'
+
 export const useAppContext = () => useContext(AppContext);
 
 export const AppContext = createContext({} as ContextProviderValue);
 
 export const AppContextProvider = ({ children }: ContextProviderProps) => {
-  useOneTapLogin();
+  const [loading, setLoading] = useState(false);
+  const { handleLogin } = useOneTapLogin();
 
   const [theme, setTheme] = useState("light");
   const [locale, setLocale] = useState("");
@@ -111,6 +115,9 @@ export const AppContextProvider = ({ children }: ContextProviderProps) => {
         setSongTask,
         songTaskStep,
         setSongTaskStep,
+        loading,
+        setLoading,
+        handleLogin,
       }}
     >
       {children}

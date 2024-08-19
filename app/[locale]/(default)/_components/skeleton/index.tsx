@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+export const runtime = "edge";
 
 export default function () {
   return (

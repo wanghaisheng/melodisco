@@ -1,107 +1,36 @@
-import { QueryResult, QueryResultRow } from "pg";
-
 import { Song } from "@/types/song";
 import { SongTask } from "@/types/task";
 import { getDb } from "@/models/db";
-import { getSongsFromSqlResult } from "./song";
+import { Prisma } from "@prisma/client";
 
 export async function insertSongTask(task: SongTask) {
-  const db = await getDb();
-  const res = await db.query(
-    `INSERT INTO song_tasks 
-      (uuid, user_uuid, created_at, updated_at, status, description, title, lyrics, tags, is_no_lyrics, lyrics_provider, lyrics_uuid, song_provider, song_model, song_uuids) 
-      VALUES 
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-  `,
-    [
-      task.uuid,
-      task.user_uuid,
-      task.created_at,
-      task.updated_at,
-      task.status,
-      task.description,
-      task.title as any,
-      task.lyrics,
-      task.tags,
-      task.is_no_lyrics,
-      task.lyrics_provider,
-      task.lyrics_uuid,
-      task.song_provider,
-      task.song_model,
-      task.song_uuids,
-    ]
-  );
-
-  return res;
+  const prisma = getDb();
+  return prisma.songTasks.create({
+    data: formatSongTaskForPrisma(task),
+  });
 }
 
-export async function getUserSongTasksCount(
-  user_uuid: string
-): Promise<number> {
-  const db = getDb();
-  const res = await db.query(
-    `SELECT count(1) as count FROM song_tasks WHERE user_uuid = $1`,
-    [user_uuid]
-  );
-  if (res.rowCount === 0) {
-    return 0;
-  }
-
-  const { rows } = res;
-  const row = rows[0];
-
-  return row.count;
+export async function getUserSongTasksCount(user_uuid: string): Promise<number> {
+  const prisma = getDb();
+  return prisma.songTasks.count({
+    where: { user_uuid },
+  });
 }
 
 export async function updateSongTask(task: SongTask) {
-  const db = await getDb();
-  const res = await db.query(
-    `UPDATE song_tasks SET 
-      updated_at=$1,
-      description=$2,
-      title=$3,
-      lyrics=$4,
-      tags=$5,
-      is_no_lyrics=$6,
-      song_provider=$7,
-      song_model=$8,
-      song_uuids=$9,
-      status=$10
-    WHERE uuid=$11
-  `,
-    [
-      task.updated_at,
-      task.description,
-      task.title as any,
-      task.lyrics,
-      task.tags,
-      task.is_no_lyrics,
-      task.song_provider,
-      task.song_model,
-      task.song_uuids,
-      task.status,
-      task.uuid,
-    ]
-  );
-
-  return res;
+  const prisma = getDb();
+  return prisma.songTasks.update({
+    where: { uuid: task.uuid },
+    data: formatSongTaskForPrisma(task),
+  });
 }
 
-export async function findSongTaskByUuid(
-  uuid: string
-): Promise<SongTask | undefined> {
-  const db = getDb();
-  const res = await db.query(
-    `SELECT * FROM song_tasks WHERE uuid = $1 LIMIT 1`,
-    [uuid]
-  );
-  if (res.rowCount === 0) {
-    return undefined;
-  }
-
-  const { rows } = res;
-
-  return formatSongTask(rows[0]);
+export async function findSongTaskByUuid(uuid: string): Promise<SongTask | null> {
+  const prisma = getDb();
+  const task = await prisma.songTasks.findUnique({
+    where: { uuid },
+  });
+  return task ? formatSongTask(task) : null;
 }
 
 export async function getUserSongTasks(
@@ -109,24 +38,16 @@ export async function getUserSongTasks(
   page: number,
   limit: number
 ): Promise<SongTask[] | undefined> {
-  if (page <= 0) {
-    page = 1;
-  }
-  if (limit <= 0) {
-    limit = 50;
-  }
-  const offset = (page - 1) * limit;
-
-  const db = getDb();
-  const res = await db.query(
-    `SELECT * FROM song_tasks WHERE user_uuid = $1 order by created_at desc limit $2 offset $3`,
-    [user_uuid as any, limit, offset]
-  );
-  if (res.rowCount === 0) {
-    return undefined;
-  }
-
-  return getSongTasksFromSqlResult(res);
+  const prisma = getDb();
+  if (page <= 0) page = 1;
+  if (limit <= 0) limit = 50;
+  const tasks = await prisma.songTasks.findMany({
+    where: { user_uuid },
+    orderBy: { created_at: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+  return tasks.map(formatSongTask);
 }
 
 export async function getUserCreatedSongs(
@@ -134,70 +55,59 @@ export async function getUserCreatedSongs(
   page: number,
   limit: number
 ): Promise<Song[] | undefined> {
+  const prisma = getDb();
   try {
-    if (page <= 0) {
-      page = 1;
-    }
-    if (limit <= 0) {
-      limit = 50;
-    }
-    const offset = (page - 1) * limit;
-
-    const db = getDb();
-    const res = await db.query(
-      `SELECT * FROM song_tasks WHERE user_uuid = $1 order by created_at desc limit $2 offset $3`,
-      [user_uuid as any, limit, offset]
-    );
-    if (res.rowCount === 0) {
-      return undefined;
-    }
-
-    let song_uuids: string[] = [];
-    res.rows.forEach((item) => {
-      if (item["song_uuids"]) {
-        const uuids = JSON.parse(item["song_uuids"]);
-        song_uuids.push(...uuids);
-      }
+    if (page <= 0) page = 1;
+    if (limit <= 0) limit = 50;
+    const tasks = await prisma.songTasks.findMany({
+      where: { user_uuid },
+      orderBy: { created_at: 'desc' },
+      take: limit,
+      skip: (page - 1) * limit,
+      select: { song_uuids: true },
     });
+
+    const song_uuids = tasks.flatMap(task => JSON.parse(task.song_uuids || '[]'));
 
     console.log("song_uuids", song_uuids);
 
-    const placeholders = song_uuids
-      .map((_, index) => `$${index + 1}`)
-      .join(", ");
-    const song_res = await db.query(
-      `SELECT * FROM songs WHERE uuid IN (${placeholders}) AND status not in ('forbidden','deleted') order by created_at desc`,
-      song_uuids
-    );
+    const songs = await prisma.songs.findMany({
+      where: {
+        uuid: { in: song_uuids },
+        status: { notIn: ['forbidden', 'deleted'] },
+      },
+      orderBy: { created_at: 'desc' },
+    });
 
-    return getSongsFromSqlResult(song_res);
+    return songs.map(formatSong);
   } catch (e) {
     console.log("get user created songs failed:", e);
     return [];
   }
 }
 
-export function getSongTasksFromSqlResult(
-  res: QueryResult<QueryResultRow>
-): SongTask[] {
-  if (!res.rowCount || res.rowCount === 0) {
-    return [];
-  }
-
-  const tasks: SongTask[] = [];
-  const { rows } = res;
-  rows.forEach((row) => {
-    const task = formatSongTask(row);
-    if (task) {
-      tasks.push(task);
-    }
-  });
-
-  return tasks;
+function formatSongTaskForPrisma(task: SongTask): Prisma.songTasksCreateInput {
+  return {
+    uuid: task.uuid,
+    user_uuid: task.user_uuid,
+    created_at: task.created_at,
+    updated_at: task.updated_at,
+    status: task.status,
+    description: task.description,
+    title: task.title,
+    lyrics: task.lyrics,
+    tags: task.tags,
+    is_no_lyrics: task.is_no_lyrics,
+    lyrics_provider: task.lyrics_provider,
+    lyrics_uuid: task.lyrics_uuid,
+    song_provider: task.song_provider,
+    song_model: task.song_model,
+    song_uuids: task.song_uuids,
+  };
 }
 
-export function formatSongTask(row: QueryResultRow): SongTask {
-  const task: SongTask = {
+function formatSongTask(row: Prisma.songTasksCreateInput): SongTask {
+  return {
     uuid: row.uuid,
     user_uuid: row.user_uuid,
     created_at: row.created_at,
@@ -214,6 +124,31 @@ export function formatSongTask(row: QueryResultRow): SongTask {
     song_model: row.song_model,
     song_uuids: row.song_uuids,
   };
+}
 
-  return task;
+function formatSong(row: Prisma.songsCreateInput): Song {
+  return {
+    uuid: row.uuid,
+    video_url: row.video_url,
+    audio_url: row.audio_url,
+    image_url: row.image_url || "/cover.png",
+    image_large_url: row.image_large_url || "/cover.png",
+    llm_model: row.llm_model,
+    tags: row.tags,
+    lyrics: row.lyrics,
+    description: row.description,
+    duration: row.duration,
+    type: row.type,
+    user_uuid: row.user_uuid,
+    title: row.title,
+    play_count: row.play_count,
+    upvote_count: row.upvote_count,
+    created_at: row.created_at,
+    status: row.status,
+    is_public: row.is_public,
+    is_trending: row.is_trending,
+    provider: row.provider,
+    artist: row.artist,
+    prompt: row.prompt,
+  };
 }

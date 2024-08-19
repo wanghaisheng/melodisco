@@ -1,10 +1,14 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import { setupDevPlatform } from "@cloudflare/next-on-pages/next-dev";
 
+if (process.env.NODE_ENV === "development") {
+  await setupDevPlatform();
+}
 const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  
   reactStrictMode: false,
   async redirects() {
     return [
@@ -48,8 +52,5 @@ const nextConfig = {
   },
 };
 
-if (process.env.NODE_ENV === "development") {
-  await setupDevPlatform();
-}
 
 export default withNextIntl(nextConfig);

@@ -1,18 +1,13 @@
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from "@prisma/client";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
+let prisma: PrismaClient;
 
-async function getData() {
-
-
-  const connectionString = process.env.POSTGRES_URL;
-  if (!connectionString) {
-    throw new Error("POSTGRES_URL is not defined");
+export function getDb() {
+  if (!prisma) {
+    prisma = new PrismaClient();
   }
-  const sql = neon(connectionString);
-  
-const response = await sql`SELECT version()`;
-return response[0].version;
-
-
-
+  return prisma;
 }
+
+export const adapter = PrismaAdapter(getDb());

@@ -1,6 +1,7 @@
 import { genUniSeq, genUuid } from "@/utils";
 
 const apiBaseUri = "https://studio-api.suno.ai";
+export const runtime = 'edge'
 
 export async function genSong(
   task_uuid: string,

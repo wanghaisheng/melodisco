@@ -24,6 +24,7 @@ import { Slider } from "@/components/ui/slider";
 import { Song } from "@/types/song";
 import { useAppContext } from "@/contexts/app";
 import { useRouter } from "next/navigation";
+export const runtime = "edge";
 
 export default function () {
   const router = useRouter();

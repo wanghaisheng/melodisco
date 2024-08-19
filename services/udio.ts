@@ -1,4 +1,5 @@
 const apiBaseUri = "https://www.udio.com";
+export const runtime = 'edge'
 
 export async function getTrendingSongs(page: number, page_size: number) {
   return getSongs(page, page_size, "trending_score");

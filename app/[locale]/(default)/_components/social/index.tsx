@@ -10,6 +10,7 @@ import { FaGithub, FaProductHunt, FaSearch } from "react-icons/fa";
 
 import { MdOutlineMail } from "react-icons/md";
 import { SiBuymeacoffee } from "react-icons/si";
+export const runtime = "edge";
 
 export default function () {
   return (

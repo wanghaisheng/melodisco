@@ -3,6 +3,7 @@
 import Describe from "./describe";
 import Sign from "../sign";
 import { useAppContext } from "@/contexts/app";
+export const runtime = "edge";
 
 export default function () {
   const { user } = useAppContext();

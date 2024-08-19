@@ -1,6 +1,7 @@
 import MarkdownIt from "markdown-it";
 import React from "react";
 import hljs from "highlight.js";
+export const runtime = "edge";
 
 export default function ({ content }: { content: string }) {
   const md: MarkdownIt = new MarkdownIt({

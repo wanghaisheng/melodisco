@@ -10,6 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+export const runtime = "edge";
 
 export default function () {
   const router = useRouter();

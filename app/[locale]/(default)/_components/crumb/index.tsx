@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 import { Nav } from "@/types/nav";
+export const runtime = "edge";
 
 export default function ({ navs }: { navs: Nav[] }) {
   return (

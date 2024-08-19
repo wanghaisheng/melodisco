@@ -17,6 +17,7 @@ import { Song } from "@/types/song";
 import { useAppContext } from "@/contexts/app";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function ({
   loading,

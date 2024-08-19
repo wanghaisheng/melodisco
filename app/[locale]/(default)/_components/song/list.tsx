@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Song } from "@/types/song";
 import { useAppContext } from "@/contexts/app";
 import { useRouter } from "next/navigation";
+export const runtime = "edge";
 
 export default function ({ songs }: { songs: Song[] }) {
   const router = useRouter();

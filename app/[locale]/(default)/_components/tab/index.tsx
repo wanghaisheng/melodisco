@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+export const runtime = "edge";
 
 export default function ({ type }: { type: string }) {
   const pathname = usePathname();

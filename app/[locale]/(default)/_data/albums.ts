@@ -3,6 +3,7 @@ export interface Album {
   artist: string;
   cover: string;
 }
+export const runtime = "edge";
 
 export const listenNowAlbums: Album[] = [
   {

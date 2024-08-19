@@ -10,6 +10,7 @@ import { Song } from "@/types/song";
 import moment from "moment";
 import { useAppContext } from "@/contexts/app";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function ({ song }: { song: Song }) {
   const t = useTranslations("song");

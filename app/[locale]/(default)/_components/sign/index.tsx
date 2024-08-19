@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
+export const runtime = "edge";
 
 export default function () {
   const t = useTranslations("user");

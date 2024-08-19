@@ -1,4 +1,5 @@
 import { getTimestamp } from "./time";
+export const runtime = 'edge'
 
 // get data from cache
 export const cacheGet = (key: string): string | null => {
