@@ -86,6 +86,9 @@ model songs {
   provider         String?
   artist           String?
   prompt           String?
+  favorite_songs favorite_songs[]
+  play_songs     play_songs[]
+
 }
 
 model favorite_songs {
@@ -94,6 +97,7 @@ model favorite_songs {
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
   status           String?
+  song           songs    @relation(fields: [song_uuid], references: [uuid])
 
   @@unique([song_uuid, user_uuid], name: "unique_favorite_song")
 }
@@ -102,6 +106,8 @@ model play_songs {
   song_uuid        String   @id @default(uuid())
   user_uuid        String
   created_at       DateTime @default(now())
+  song           songs    @relation(fields: [song_uuid], references: [uuid])
+
 }
 
 model upvote_songs {
@@ -132,7 +138,7 @@ model song_tasks {
 }
 
 model orders {
-  order_no         String   @id
+  order_no         String   @id @default(uuid())
   created_at       DateTime @default(now())
   user_uuid        String
   user_email       String

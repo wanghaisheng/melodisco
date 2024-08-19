@@ -37,3 +37,4 @@ data/songs.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.next

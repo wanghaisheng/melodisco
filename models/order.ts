@@ -23,7 +23,7 @@ export async function insertOrder(order: Order) {
 }
 
 export async function findOrderByOrderNo(
-  order_no: number
+  order_no: string
 ): Promise<Order | undefined> {
   const prisma = getDb();
   const res = await prisma.orders.findUnique({
@@ -83,22 +83,20 @@ export async function getUserOrders(
   return res.map(formatOrder);
 }
 
-function formatOrder(row: Prisma.ordersCreateInput): Order {
+function formatOrder(row: Prisma.ordersGetPayload<{}>): Order {
   const order: Order = {
     order_no: row.order_no,
-    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+    created_at: row.created_at.toISOString(),
     user_uuid: row.user_uuid,
     user_email: row.user_email,
-    amount: row.amount as number,
-    plan: row.plan as string,
-    expired_at: row.expired_at instanceof Date ? row.expired_at.toISOString() : row.expired_at,
-
-    order_status: row.order_status as number,
-    paied_at: row.paied_at instanceof Date ? row.paied_at.toISOString() : row.paied_at,
-
-    stripe_session_id: row.stripe_session_id as string | undefined,
-    credits: row.credits as number,
-    currency: row.currency as string,
+    amount: row.amount,
+    plan: row.plan ?? '',
+    expired_at: row.expired_at?.toISOString() ?? '',
+    order_status: row.order_status,
+    paied_at: row.paied_at?.toISOString(),
+    stripe_session_id: row.stripe_session_id ?? undefined,
+    credits: row.credits,
+    currency: row.currency ?? '',
   };
 
   return order;

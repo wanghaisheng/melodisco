@@ -22,7 +22,7 @@ export async function updateFavoriteSong(song: FavoriteSong) {
   const prisma = getDb();
   const res = await prisma.favorite_songs.update({
     where: {
-      song_uuid_user_uuid: {
+      unique_favorite_song: {
         song_uuid: song.song_uuid,
         user_uuid: song.user_uuid
       }
@@ -43,7 +43,7 @@ export async function findFavoriteSong(
   const prisma = getDb();
   const res = await prisma.favorite_songs.findUnique({
     where: {
-      song_uuid_user_uuid: {
+      unique_favorite_song: {
         song_uuid: song_uuid,
         user_uuid: user_uuid
       }
@@ -67,42 +67,44 @@ export async function getUserFavoriteSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const res = await prisma.songs.findMany({
-    include: {
-      favorite_songs: {
-        where: {
-          user_uuid: user_uuid,
-          status: 'on'
-        }
-      }
-    },
+  const favoriteSongs = await prisma.favorite_songs.findMany({
     where: {
-      favorite_songs: {
-        some: {
-          user_uuid: user_uuid,
-          status: 'on'
-        }
-      }
+      user_uuid: user_uuid,
+      status: 'on'
     },
     orderBy: {
-      favorite_songs: {
-        _count: 'desc'
-      }
+      created_at: 'desc'
     },
     take: limit,
     skip: offset
   });
 
-  return res.length > 0 ? getSongsFromPrismaResult(res) : undefined;
-}
+  if (favoriteSongs.length === 0) {
+    return undefined;
+  }
 
-export function formatFavoriteSong(row: Prisma.favorite_songsCreateInput): FavoriteSong {
+  const songUuids = favoriteSongs.map(fs => fs.song_uuid);
+  const songs = await prisma.songs.findMany({
+    where: {
+      uuid: {
+        in: songUuids
+      }
+    }
+  });
+
+  const formattedSongs = getSongsFromPrismaResult( songs);
+
+  return formattedSongs
+}
+// ... existing code ...
+
+export function formatFavoriteSong(row: Prisma.favorite_songsGetPayload<{}>): FavoriteSong {
   const favoriteSong: FavoriteSong = {
     song_uuid: row.song_uuid,
     user_uuid: row.user_uuid,
-    created_at: row.created_at as Date,
-    updated_at: row.updated_at as Date,
-    status: row.status as string,
+    created_at: row.created_at.toISOString() ?? '',
+    updated_at: row.updated_at.toISOString() ?? '',
+    status: row.status ?? '',
   };
 
   return favoriteSong;

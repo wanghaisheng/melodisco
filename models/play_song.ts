@@ -5,20 +5,20 @@ import { Prisma } from "@prisma/client";
 export async function insertPlaySong(song: PlaySong) {
   const prisma = getDb();
 
-  return prisma.playSongs.create({
+  return prisma.play_songs.create({
     data: {
-      songUuid: song.song_uuid,
-      userUuid: song.user_uuid,
-      createdAt: song.created_at,
+      song_uuid: song.song_uuid,
+      user_uuid: song.user_uuid,
+      created_at: song.created_at,
     },
   });
 }
 
-function formatPlaySong(row: Prisma.playSongsCreateInput): PlaySong {
+function formatPlaySong(row: Prisma.play_songsGetPayload<{}>): PlaySong {
   return {
-    song_uuid: row.songUuid,
-    user_uuid: row.userUuid,
-    created_at: row.createdAt,
+    song_uuid: row.song_uuid,
+    user_uuid: row.user_uuid,
+    created_at: row.created_at.toISOString(),
   };
 }
 
@@ -33,10 +33,10 @@ export async function getUserPlaySongs(
   const offset = (page - 1) * limit;
 
   const [rows, totalCount] = await prisma.$transaction([
-    prisma.playSongs.findMany({
-      where: { userUuid: user_uuid },
-      orderBy: { createdAt: 'desc' },
-      distinct: ['songUuid'],
+    prisma.play_songs.findMany({
+      where: { user_uuid: user_uuid },
+      orderBy: { created_at: 'desc' },
+      distinct: ['song_uuid'],
       take: limit,
       skip: offset,
       include: {
@@ -48,9 +48,9 @@ export async function getUserPlaySongs(
         },
       },
     }),
-    prisma.playSongs.count({
-      where: { userUuid: user_uuid },
-      distinct: ['songUuid'],
+    prisma.play_songs.count({
+      where: { user_uuid: user_uuid },
+      distinct: ['song_uuid'],
     }),
   ]);
 
@@ -58,7 +58,7 @@ export async function getUserPlaySongs(
 
   const songs = rows.map(row => ({
     ...row.song,
-    last_played: row.createdAt,
+    last_played: row.created_at.toISOString(),
   }));
 
   return { songs, totalCount };
