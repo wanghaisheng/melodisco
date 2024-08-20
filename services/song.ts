@@ -11,7 +11,7 @@ import { Song } from "@/types/song";
  */
 export const runtime = 'edge'
 
-async function fetchData(dataUrl) {
+async function fetchData(dataUrl:string) {
   try {
     const response = await fetch(dataUrl);
     

@@ -12,6 +12,7 @@ model User {
   uuid             String    @unique
   email            String    @unique
   created_at       DateTime? @db.Timestamptz
+  emailVerified       DateTime? @db.Timestamptz  
   nickname         String?
   avatar_url       String?
   locale           String?   @db.VarChar(50)

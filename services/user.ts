@@ -14,10 +14,10 @@ export async function saveUser(user: User) {
     if (!existingUser) {
       await prisma.user.create({
         data: {
-          id: user.uuid, // Assuming uuid is used as the id
+          uuid: user.uuid, // Assuming uuid is used as the id
           email: user.email,
-          name: user.nickname,
-          image: user.avatar_url,
+          nickname: user.nickname,
+          avatar_url: user.avatar_url,
           // Add other fields as necessary
         },
       });
@@ -25,13 +25,15 @@ export async function saveUser(user: User) {
       await prisma.user.update({
         where: { email: user.email },
         data: {
-          name: user.nickname,
-          image: user.avatar_url,
+          nickname: user.nickname,
+          avatar_url: user.avatar_url,
+          uuid: user.uuid,
+
           // Update other fields as necessary
         },
       });
       user.id = existingUser.id;
-      user.uuid = existingUser.id; // Assuming id is used as uuid
+      // user.uuid = existingUser.id; // Assuming id is used as uuid
       user.created_at = existingUser.emailVerified?.toISOString() || user.created_at;
     }
   } catch (e) {
@@ -39,9 +41,18 @@ export async function saveUser(user: User) {
   }
 }
 
-export async function getUserUuid() {
+export async function getUserId() {
   const session = await auth();
   return session?.user?.id || "";
+}
+export async function getUserUuid(): Promise<string> {
+  const email = await getUserEmail();
+  const prisma = getDb();
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { uuid: true }
+  });
+  return user?.uuid || "";
 }
 
 export async function getUserEmail() {
