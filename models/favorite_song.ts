@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 
 export async function insertFavoriteSong(song: FavoriteSong) {
   const prisma = getDb();
-  const res = await prisma.favorite_songs.create({
+  const res = await prisma.favoriteSong.create({
     data: {
       song_uuid: song.song_uuid,
       user_uuid: song.user_uuid,
@@ -20,7 +20,7 @@ export async function insertFavoriteSong(song: FavoriteSong) {
 
 export async function updateFavoriteSong(song: FavoriteSong) {
   const prisma = getDb();
-  const res = await prisma.favorite_songs.update({
+  const res = await prisma.favoriteSong.update({
     where: {
       unique_favorite_song: {
         song_uuid: song.song_uuid,
@@ -41,7 +41,7 @@ export async function findFavoriteSong(
   user_uuid: string
 ): Promise<FavoriteSong | undefined> {
   const prisma = getDb();
-  const res = await prisma.favorite_songs.findUnique({
+  const res = await prisma.favoriteSong.findUnique({
     where: {
       unique_favorite_song: {
         song_uuid: song_uuid,
@@ -67,7 +67,7 @@ export async function getUserFavoriteSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const favoriteSongs = await prisma.favorite_songs.findMany({
+  const favoriteSongs = await prisma.favoriteSong.findMany({
     where: {
       user_uuid: user_uuid,
       status: 'on'
@@ -84,7 +84,7 @@ export async function getUserFavoriteSongs(
   }
 
   const songUuids = favoriteSongs.map(fs => fs.song_uuid);
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       uuid: {
         in: songUuids
@@ -98,12 +98,12 @@ export async function getUserFavoriteSongs(
 }
 // ... existing code ...
 
-export function formatFavoriteSong(row: Prisma.favorite_songsGetPayload<{}>): FavoriteSong {
+export function formatFavoriteSong(row: Prisma.FavoriteSongGetPayload<{}>): FavoriteSong {
   const favoriteSong: FavoriteSong = {
     song_uuid: row.song_uuid,
     user_uuid: row.user_uuid,
-    created_at: row.created_at.toISOString() ?? '',
-    updated_at: row.updated_at.toISOString() ?? '',
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : new Date().toISOString(),
+    updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : new Date().toISOString(),
     status: row.status ?? '',
   };
 

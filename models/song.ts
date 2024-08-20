@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 
 export async function insertRow(song: Song) {
   const prisma = getDb();
-  const res = await prisma.songs.create({
+  const res = await prisma.song.create({
     data: {
       uuid: song.uuid,
       video_url: song.video_url,
@@ -36,7 +36,7 @@ export async function insertRow(song: Song) {
 
 export async function updateSong(song: Song) {
   const prisma = getDb();
-  const res = await prisma.songs.update({
+  const res = await prisma.song.update({
     where: { uuid: song.uuid },
     data: {
       video_url: song.video_url,
@@ -68,7 +68,7 @@ export async function updateSong(song: Song) {
 
 export async function getUuids(): Promise<string[]> {
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     select: { uuid: true }
   });
   return songs.map(song => song.uuid);
@@ -76,15 +76,17 @@ export async function getUuids(): Promise<string[]> {
 
 export async function getTotalCount(): Promise<number> {
   const prisma = getDb();
-  return prisma.songs.count();
+  return prisma.song.count();
 }
 
 export async function findByUuid(uuid: string): Promise<Song | undefined> {
   const prisma = getDb();
-  const song = await prisma.songs.findUnique({
+  const song = await prisma.song.findUnique({
     where: { uuid }
   });
-  return song ? formatSong(song) : undefined;
+  if (!song || !song.uuid) return undefined; // Return undefined if uuid is missing
+
+  return formatSong(song);
 }
 
 export async function getLatestSongs(
@@ -100,7 +102,7 @@ export async function getLatestSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       status: 'complete',
       audio_url: { not: '' }
@@ -127,7 +129,7 @@ export async function getProviderLatestSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       provider,
       status: 'complete',
@@ -154,7 +156,7 @@ export async function getRandomSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       status: 'complete',
       audio_url: { not: '' }
@@ -181,7 +183,7 @@ export async function getProviderRandomSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       provider,
       status: 'complete',
@@ -208,7 +210,7 @@ export async function getTrendingSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       status: 'complete',
       audio_url: { not: '' }
@@ -238,7 +240,7 @@ export async function getProviderTrendingSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       provider,
       status: 'complete',
@@ -269,7 +271,7 @@ export async function getUserSongs(
   const offset = (page - 1) * limit;
 
   const prisma = getDb();
-  const songs = await prisma.songs.findMany({
+  const songs = await prisma.song.findMany({
     where: {
       user_uuid,
       status: 'complete'
@@ -282,7 +284,9 @@ export async function getUserSongs(
   return getSongsFromPrismaResult(songs);
 }
 
-export function getSongsFromPrismaResult(songs: Prisma.songsCreateInput[]): Song[] {
+export function getSongsFromPrismaResult(songs: Prisma.SongCreateInput[]): Song[] {
+  if (songs.length===0) return []; // Return undefined if uuid is missing
+
   return songs.map(formatSong).filter((song): song is Song => 
     song !== undefined && song.status !== "forbidden"
   );
@@ -290,7 +294,7 @@ export function getSongsFromPrismaResult(songs: Prisma.songsCreateInput[]): Song
 
 export async function increasePlayCount(song_uuid: string) {
   const prisma = getDb();
-  return prisma.songs.update({
+  return prisma.song.update({
     where: { uuid: song_uuid },
     data: { play_count: { increment: 1 } }
   });
@@ -318,30 +322,33 @@ export function isSongSensitive(song: Song): boolean {
   return false;
 }
 
-export function formatSong(row: Prisma.songsCreateInput): Song | undefined {
+export function formatSong(row: Prisma.SongCreateInput): Song | undefined {
+  if (!row.uuid) return undefined; // Return undefined if uuid is missing
+
+
   let song: Song = {
     uuid: row.uuid,
-    video_url: row.video_url ?? undefined,
-    audio_url: row.audio_url ?? undefined,
-    image_url: row.image_url ?? undefined,
-    image_large_url: row.image_large_url ?? undefined,
-    llm_model: row.llm_model ?? undefined,
-    tags: row.tags ?? undefined,
-    lyrics: row.lyrics ?? undefined,
-    description: row.description ?? undefined,
-    duration: row.duration ?? undefined,
-    type: row.type ?? undefined,
-    user_uuid: row.user_uuid ?? undefined,
-    title: row.title ?? undefined,
-    play_count: row.play_count ?? undefined,
-    upvote_count: row.upvote_count ?? undefined,
-    created_at: row.created_at,
-    status: row.status ?? undefined,
-    is_public: row.is_public ?? undefined,
-    is_trending: row.is_trending ?? undefined,
-    provider: row.provider ?? undefined,
-    artist: row.artist ?? undefined,
-    prompt: row.prompt ?? undefined,
+    video_url: row.video_url ?? '',
+    audio_url: row.audio_url ?? '',
+    image_url: row.image_url ?? '',
+    image_large_url: row.image_large_url ?? '',
+    llm_model: row.llm_model ?? '',
+    tags: row.tags ?? '',
+    lyrics: row.lyrics ?? '',
+    description: row.description ?? '',
+    duration: row.duration ?? 0,
+    type: row.type ?? '',
+    user_uuid: row.user_uuid ?? '',
+    title: row.title ?? '',
+    play_count: row.play_count ?? 0,
+    upvote_count: row.upvote_count ?? 0,
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : new Date().toISOString(),
+    status: row.status ?? '',
+    is_public: row.is_public ?? true,
+    is_trending: row.is_trending ?? false,
+    provider: row.provider ?? '',
+    artist: row.artist ?? '',
+    prompt: row.prompt ?? '',
   };
 
   if (!song.image_url) {

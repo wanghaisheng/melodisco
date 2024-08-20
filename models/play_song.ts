@@ -1,11 +1,12 @@
 import { PlaySong, Song } from "@/types/song";
 import { getDb } from "./db";
+import {getSongsFromPrismaResult} from './song'
 import { Prisma } from "@prisma/client";
 
 export async function insertPlaySong(song: PlaySong) {
   const prisma = getDb();
 
-  return prisma.play_songs.create({
+  return prisma.playSong.create({
     data: {
       song_uuid: song.song_uuid,
       user_uuid: song.user_uuid,
@@ -14,52 +15,44 @@ export async function insertPlaySong(song: PlaySong) {
   });
 }
 
-function formatPlaySong(row: Prisma.play_songsGetPayload<{}>): PlaySong {
+function formatPlaySong(row: Prisma.PlaySongGetPayload<{}>): PlaySong {
   return {
     song_uuid: row.song_uuid,
     user_uuid: row.user_uuid,
-    created_at: row.created_at.toISOString(),
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : new Date().toISOString(),
   };
 }
+
 
 export async function getUserPlaySongs(
   user_uuid: string,
   page: number,
   limit: number
-): Promise<{ songs: Song[]; totalCount: number } | undefined> {
-  const prisma = getDb();
-  if (page < 1) page = 1;
-  if (limit <= 0) limit = 50;
+): Promise<Song[] | undefined> {
+  if (page < 1) {
+    page = 1;
+  }
+  if (limit <= 0) {
+    limit = 50;
+  }
   const offset = (page - 1) * limit;
 
-  const [rows, totalCount] = await prisma.$transaction([
-    prisma.play_songs.findMany({
-      where: { user_uuid: user_uuid },
-      orderBy: { created_at: 'desc' },
-      distinct: ['song_uuid'],
-      take: limit,
-      skip: offset,
-      include: {
-        song: {
-          include: {
-            artist: true,
-            album: true,
-          },
-        },
-      },
-    }),
-    prisma.play_songs.count({
-      where: { user_uuid: user_uuid },
-      distinct: ['song_uuid'],
-    }),
-  ]);
+  const db = getDb();
+  const res = await db.$queryRaw<(Prisma.SongGetPayload<{}> & { created_at: Date })[]>`
+    SELECT s.*, p.song_uuid, p.created_at
+    FROM (
+      SELECT song_uuid, MAX(created_at) as MaxCreatedAt
+      FROM playSong WHERE user_uuid = ${user_uuid}
+      GROUP BY song_uuid
+    ) AS latest
+    JOIN playSong p ON latest.song_uuid = p.song_uuid AND latest.MaxCreatedAt = p.created_at
+    JOIN songs s ON p.song_uuid = s.uuid
+    ORDER BY p.created_at DESC LIMIT ${limit} OFFSET ${offset};
+  `;
 
-  if (rows.length === 0) return undefined;
+  if (res.length === 0) {
+    return undefined;
+  }
 
-  const songs = rows.map(row => ({
-    ...row.song,
-    last_played: row.created_at.toISOString(),
-  }));
-
-  return { songs, totalCount };
+  return getSongsFromPrismaResult(res);
 }

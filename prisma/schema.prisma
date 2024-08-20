@@ -8,146 +8,103 @@ generator client {
 }
 
 model User {
-  id               String    @id @default(uuid())
+  id               Int       @id @default(autoincrement())
+  uuid             String    @unique
   email            String    @unique
-  password         String?
-  emailVerified    DateTime?
-  created_at       DateTime  @default(now())
+  created_at       DateTime? @db.Timestamptz
   nickname         String?
-  name             String?   // Added for Next-Auth compatibility
-  image            String?   // Added for Next-Auth compatibility
   avatar_url       String?
-  locale           String?
-  signin_type      String?
+  locale           String?   @db.VarChar(50)
+  signin_type      String?   @db.VarChar(50)
   signin_ip        String?
-  signin_provider  String?
+  signin_provider  String?   @db.VarChar(50)
   signin_openid    String?
-  accounts         Account[]
-  sessions         Session[]
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// Your existing models
-
-model songs {
-  uuid             String   @id @default(uuid())
+model Song {
+  id               Int       @id @default(autoincrement())
+  uuid             String    @unique
   video_url        String?
   audio_url        String?
   image_url        String?
   image_large_url  String?
-  llm_model        String?
+  llm_model        String?   @db.VarChar(50)
   tags             String?
-  lyrics           String?
-  description      String?
+  lyrics           String?   @db.Text
+  description      String?   @db.Text
   duration         Float?
-  type             String?
+  type             String?   @db.VarChar(50)
   user_uuid        String?
   title            String?
   play_count       Int?
   upvote_count     Int?
-  created_at       DateTime @default(now())
-  status           String?
+  created_at       DateTime? @db.Timestamptz
+  status           String?   @db.VarChar(50)
   is_public        Boolean?
   is_trending      Boolean?
-  provider         String?
-  artist           String?
-  prompt           String?
-  favorite_songs favorite_songs[]
-  play_songs     play_songs[]
-
+  provider         String?   @db.VarChar(50)
+  artist           String?   @db.VarChar(100)
+  prompt           String?   @db.Text
+  favorite_songs   FavoriteSong[]
+  play_songs       PlaySong[]
 }
 
-model favorite_songs {
-  song_uuid        String   @id @default(uuid())
+model FavoriteSong {
+  song_uuid        String
   user_uuid        String
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-  status           String?
-  song           songs    @relation(fields: [song_uuid], references: [uuid])
+  created_at       DateTime? @db.Timestamptz
+  updated_at       DateTime? @db.Timestamptz
+  status           String?   @db.VarChar(50)
+  song             Song      @relation(fields: [song_uuid], references: [uuid])
 
   @@unique([song_uuid, user_uuid], name: "unique_favorite_song")
 }
 
-model play_songs {
-  song_uuid        String   @id @default(uuid())
+model PlaySong {
+  song_uuid        String   @id
   user_uuid        String
-  created_at       DateTime @default(now())
-  song           songs    @relation(fields: [song_uuid], references: [uuid])
-
+  created_at       DateTime? @db.Timestamptz
+  song             Song      @relation(fields: [song_uuid], references: [uuid])
 }
 
-model upvote_songs {
-  song_uuid        String   @id @default(uuid())
+model UpvoteSong {
+  song_uuid        String   @id
   user_uuid        String
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  created_at       DateTime? @db.Timestamptz
+  updated_at       DateTime? @db.Timestamptz
   is_signin        Boolean?
-  status           String?
+  status           String?   @db.VarChar(50)
 }
 
-model song_tasks {
-  uuid             String   @id @default(uuid())
+model SongTask {
+  uuid             String    @unique
   user_uuid        String
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-  status           String?
-  description      String?
+  created_at       DateTime? @db.Timestamptz
+  updated_at       DateTime? @db.Timestamptz
+  status           String?   @db.VarChar(50)
+  description      String?   @db.Text
   title            String?
-  lyrics           String?
+  lyrics           String?   @db.Text
   tags             String?
   is_no_lyrics     Boolean?
-  lyrics_provider  String?
-  lyrics_uuid      String?
-  song_provider    String?
-  song_model       String?
-  song_uuids       String?
+  lyrics_provider  String?   @db.VarChar(50)
+  lyrics_uuid      String?   @db.VarChar(50)
+  song_provider    String?   @db.VarChar(50)
+  song_model       String?   @db.VarChar(50)
+  song_uuids       String?   @db.Text
 }
 
-model orders {
-  order_no         String   @id @default(uuid())
-  created_at       DateTime @default(now())
+model Order {
+  order_no         String    @unique
+  created_at       DateTime? @db.Timestamptz
   user_uuid        String
   user_email       String
   amount           Int
-  plan             String?
-  expired_at       DateTime?
-  order_status     Int
-  paied_at         DateTime?
+  plan             String?   @db.VarChar(50)
+  expired_at       DateTime? @db.Timestamptz
+  order_status     Int       @db.SmallInt
+  paied_at         DateTime? @db.Timestamptz
   stripe_session_id String?
   credits          Int
-  currency         String?
+  currency         String?   @db.VarChar(50)
 }
